@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>STF.NEAT</RootNamespace>
     <AssemblyName>STF.NEAT</AssemblyName>
     <ApplicationIcon />
