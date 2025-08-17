@@ -10,17 +10,17 @@ namespace STF.NEAT
         public Dictionary<int, ConnectionGene> ConnectionGenes;
         public float Fitness;
 
-        private ILookup<int, ConnectionGene> connectionGenesByOutNode { get => ConnectionGenes.ToLookup(x => x.Value.OutNode, x => x.Value); }
-        private List<NodeGene> sensorNodes { get => NodeGenes.Values.ToList().FindAll(x => x.Type == NodeGene.NodeType.SENSOR); }
-        private List<NodeGene> outputNodes { get => NodeGenes.Values.ToList().FindAll(x => x.Type == NodeGene.NodeType.OUTPUT); }
-        private Random random = Evaluator.Random;
-        private int randomNodeIndex { get => random.Next(0, NodeGenes.Count); }
-        private float randomWeight { get => (float)random.NextDouble()*4-2; }
+        private ILookup<int, ConnectionGene> ConnectionGenesByOutNode { get => ConnectionGenes.ToLookup(x => x.Value.OutNode, x => x.Value); }
+        private List<NodeGene> SensorNodes { get => NodeGenes.Values.ToList().FindAll(x => x.Type == NodeGene.NodeType.SENSOR); }
+        private List<NodeGene> OutputNodes { get => NodeGenes.Values.ToList().FindAll(x => x.Type == NodeGene.NodeType.OUTPUT); }
+        private readonly Random random = Evaluator.Random;
+        private int RandomNodeIndex { get => random.Next(0, NodeGenes.Count); }
+        private float RandomWeight { get => (float)random.NextDouble()*4-2; }
 
         public Genome(int sensors, int outputs)
         {
-            NodeGenes = new Dictionary<int, NodeGene>();
-            ConnectionGenes = new Dictionary<int, ConnectionGene>();
+            NodeGenes = [];
+            ConnectionGenes = [];
 
             for (int i = NodeGenes.Count; i < sensors; i++)
             {
@@ -41,8 +41,8 @@ namespace STF.NEAT
         }
         public Genome()
         {
-            NodeGenes = new Dictionary<int, NodeGene>();
-            ConnectionGenes = new Dictionary<int, ConnectionGene>();
+            NodeGenes = [];
+            ConnectionGenes = [];
         }
 
         public Genome Copy()
@@ -62,19 +62,19 @@ namespace STF.NEAT
         public List<float> Compute(List<float> sensors)
         {
             ResetGenome(Evaluator.NeatConfig.ClearValuesBeforeComputing);
-            for (int i = 0; i < sensorNodes.Count; i++)
+            for (int i = 0; i < SensorNodes.Count; i++)
             {
-                sensorNodes[i].Value = sensors[i];
+                SensorNodes[i].Value = sensors[i];
             }
 
 
-            foreach(var node in outputNodes)
+            foreach(var node in OutputNodes)
             {
                 CalculateNodeValue(node.ID);
             }
 
             var result = new List<float>();
-            foreach(var node in outputNodes)
+            foreach(var node in OutputNodes)
             {
                 result.Add(node.Value);
             }
@@ -105,12 +105,12 @@ namespace STF.NEAT
 
             do
             {
-                inNode = NodeGenes.ElementAt(randomNodeIndex).Key;
-                outNode = NodeGenes.ElementAt(randomNodeIndex).Key;
+                inNode = NodeGenes.ElementAt(RandomNodeIndex).Key;
+                outNode = NodeGenes.ElementAt(RandomNodeIndex).Key;
 
             } while (Evaluator.NeatConfig.AllowFeedForwardOnly && CheckRecurring(inNode, outNode));
 
-            AddNewConnection(inNode, outNode, randomWeight);
+            AddNewConnection(inNode, outNode, RandomWeight);
         }
 
         public void MutateNode()
@@ -165,7 +165,7 @@ namespace STF.NEAT
             {
                 var randomConnection = ConnectionGenes.Values.ToList()[random.Next(0, ConnectionGenes.Count)].InnovationNumber;
 
-                ConnectionGenes[randomConnection].Weight = randomWeight;
+                ConnectionGenes[randomConnection].Weight = RandomWeight;
             }
         }
 
@@ -187,7 +187,7 @@ namespace STF.NEAT
             }
         }
 
-        private bool CheckRecurring(int inNode, int outNode)
+        private static bool CheckRecurring(int inNode, int outNode)
         {
             var inNodeType = Evaluator.GlobalNodeGenes[inNode];
             var outNodeType = Evaluator.GlobalNodeGenes[outNode];
@@ -211,7 +211,7 @@ namespace STF.NEAT
             {
                 node.Calculated = true;
 
-                var directConnections = connectionGenesByOutNode[nodeId];
+                var directConnections = ConnectionGenesByOutNode[nodeId];
                 float sum = 0f;
                 foreach (var conn in directConnections)
                 {
@@ -249,19 +249,19 @@ namespace STF.NEAT
             }
         }
 
-        private float Tanh(float value)
+        private static float Tanh(float value)
         {
             float k = (float)Math.Exp(value * -4.9f);
             return (2f / (1.0f + k)) - 1;
         }
 
-        private float Sigmoid(float value)
+        private static float Sigmoid(float value)
         {
             float k = (float)Math.Exp(value * -4.9f);
             return (1f / (1.0f + k));
         }
 
-        private float BinaryStep(float value)
+        private static float BinaryStep(float value)
         {
             if (value >= 0.5)
                 return 1f;

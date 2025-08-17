@@ -7,16 +7,22 @@ namespace STF.NEAT
     public static class Evaluator
     {
         public static NEATConfig NeatConfig { get; private set; } = new NEATConfig();
-        public static Dictionary<int, ConnectionGene> GlobalConnectionGenes = new Dictionary<int, ConnectionGene>();
-        public static List<Genome> Genomes = new List<Genome>();
-        public static List<Species> Species = new List<Species>();
-        public static Genome GlobalChampion;
-        public static Dictionary<int, NodeGene.NodeType> GlobalNodeGenes = new Dictionary<int, NodeGene.NodeType>();
 
-        public static Random Random = new Random();
+        public static Dictionary<int, ConnectionGene> GlobalConnectionGenes { get => globalConnectionGenes; set => globalConnectionGenes = value; }
+        public static Dictionary<int, NodeGene.NodeType> GlobalNodeGenes { get => globalNodeGenes; set => globalNodeGenes = value; }
+        public static List<Genome> Genomes { get => genomes; set => genomes = value; }
+        public static List<Species> Species { get => species; set => species = value; }
+        public static Genome GlobalChampion { get => globalChampion; set => globalChampion = value; }
+        public static Random Random { get => random; set => random = value; }
+        public static int Generation { get => generation; set => generation = value; }
 
-        public static int Generation = 0;
-
+        private static Dictionary<int, ConnectionGene> globalConnectionGenes = [];
+        private static Dictionary<int, NodeGene.NodeType> globalNodeGenes = [];
+        private static List<Genome> genomes = [];
+        private static List<Species> species = [];
+        private static Genome globalChampion;
+        private static Random random = new();
+        private static int generation = 0;
         private static int lastInnovationNumber;
         private static int lastNodeID = sensorNodeCount + outputNodeCount;
         private static int lastSpeciesID = 0;
@@ -32,9 +38,9 @@ namespace STF.NEAT
 
         public static void Reset()
         {
-            GlobalConnectionGenes = new Dictionary<int, ConnectionGene>();
-            Genomes = new List<Genome>();
-            Species = new List<Species>();
+            GlobalConnectionGenes = [];
+            Genomes = [];
+            Species = [];
             GlobalChampion = null;
             Generation = 0;
             lastInnovationNumber = 0;
@@ -85,10 +91,10 @@ namespace STF.NEAT
             var Offspring = new Genome(sensorNodeCount, outputNodeCount);
             var higherFitnessParent = (parent1.Fitness > parent2.Fitness) ? parent1.ConnectionGenes : parent2.ConnectionGenes;
             var lowerFitnessparent = (parent1.Fitness <= parent2.Fitness) ? parent1.ConnectionGenes : parent2.ConnectionGenes;
-            bool equalParents = (parent1.Fitness == parent2.Fitness);
+            bool equalParents = parent1.Fitness == parent2.Fitness;
 
             var sortedConnections = GlobalConnectionGenes.Values.ToList();
-            sortedConnections = sortedConnections.OrderBy(x => x.InnovationNumber).ToList();
+            sortedConnections = [.. sortedConnections.OrderBy(x => x.InnovationNumber)];
 
             foreach (var connection in sortedConnections)
             {
@@ -252,7 +258,7 @@ namespace STF.NEAT
             if (NeatConfig.AddBiasSensor)
                 sensorValuesCopy.Insert(0, 1f);
 
-            List<List<float>> results = new List<List<float>>();
+            List<List<float>> results = [];
             foreach (var genome in Genomes)
             {
                 results.Add(genome.Compute(sensorValuesCopy));
@@ -286,7 +292,7 @@ namespace STF.NEAT
         // Select, Replicate, Mutate
         public static void Replication()
         {
-            Genomes = Genomes.OrderBy(x => x.Fitness).ToList();
+            Genomes = [.. Genomes.OrderBy(x => x.Fitness)];
 
             if (NeatConfig.ClearValuesBeforeReplicating)
             {
@@ -335,7 +341,7 @@ namespace STF.NEAT
             Genomes.Clear();
 
             var extinctSpecies = new List<Species>();
-            Species = Species.OrderBy(x => x.AdjustedFitness).ToList();
+            Species = [.. Species.OrderBy(x => x.AdjustedFitness)];
 
 
             int resultingPopulation = 0;
@@ -359,7 +365,7 @@ namespace STF.NEAT
 
                 adjustedReplicationAmount += bonusOffspring;
 
-                List<Genome> nextGen = new List<Genome>();
+                List<Genome> nextGen = [];
 
                 int toBreed = (int)Math.Round(adjustedReplicationAmount * (1 - NeatConfig.ClonePercentage));
                 int toClone = (int)Math.Round(adjustedReplicationAmount * NeatConfig.ClonePercentage);
@@ -433,7 +439,7 @@ namespace STF.NEAT
             Genomes.Clear();
             foreach (var species in Species)
             {
-                species.Genomes = species.Genomes.OrderBy(x => x.Fitness).ToList();
+                species.Genomes = [.. species.Genomes.OrderBy(x => x.Fitness)];
                 int toKill = (int)Math.Ceiling(species.Genomes.Count * NeatConfig.SpeciesKillPercentage);
                 species.Genomes.RemoveRange(0, toKill);
                 Genomes.AddRange(species.Genomes);
@@ -443,8 +449,8 @@ namespace STF.NEAT
         private static List<Genome> Clone(int count, Species species)
         {
             var g = species.Genomes;
-            g = g.OrderBy(x => x.Fitness).ToList();
-            List<Genome> result = new List<Genome>();
+            g = [.. g.OrderBy(x => x.Fitness)];
+            List<Genome> result = [];
             float max = g.Count;
 
             for (int i = 0; i < count; i++)
@@ -466,8 +472,8 @@ namespace STF.NEAT
         private static List<Genome> Breed(int count, Species species)
         {
             var g = species.Genomes;
-            g = g.OrderBy(x => x.Fitness).ToList();
-            List<Genome> result = new List<Genome>();
+            g = [.. g.OrderBy(x => x.Fitness)];
+            List<Genome> result = [];
 
             float max = g.Count;
 
@@ -524,7 +530,7 @@ namespace STF.NEAT
                     currentCompatibilityThreshold -= NeatConfig.CompatibilityModifier;
             }
 
-            Dictionary<int, Species> nextGenSpecies = new Dictionary<int, Species>();
+            Dictionary<int, Species> nextGenSpecies = [];
             foreach (var genome in Genomes)
             {
                 bool matched = false;
@@ -575,7 +581,7 @@ namespace STF.NEAT
                     nextGenSpecies.Add(id, new Species(genome, id, genome.Fitness, 0));
                 }
             }
-            Species = nextGenSpecies.Values.ToList();
+            Species = [.. nextGenSpecies.Values];
         }
 
         private static void CheckSpeciesStagnation()
@@ -584,7 +590,7 @@ namespace STF.NEAT
             {
                 if (species.Champion == null)
                 {
-                    species.Genomes = species.Genomes.OrderBy(x => x.Fitness).ToList();
+                    species.Genomes = [.. species.Genomes.OrderBy(x => x.Fitness)];
                     if (species.Genomes.Last().Fitness <= species.MaxFitness)
                     {
                         species.StagnationCounter++;

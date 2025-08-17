@@ -1,6 +1,6 @@
 ﻿namespace STF.NEAT
 {
-    public class NodeGene
+    public class NodeGene(int id, NodeGene.NodeType type)
     {
         public enum NodeType
         {
@@ -9,18 +9,10 @@
             HIDDEN
         };
 
-        public int ID;
-        public NodeType Type;
-        public float Value;
-        public bool Calculated;
-
-        public NodeGene(int id, NodeType type)
-        {
-            ID = id;
-            Type = type;
-            Value = 0f;
-            Calculated = false;
-        }
+        public int ID { get; set; } = id;
+        public NodeType Type { get; set; } = type;
+        public float Value { get; set; } = 0f;
+        public bool Calculated { get; set; } = false;
 
         public void ResetValueAndCalculatedFlag()
         {

@@ -9,12 +9,11 @@ namespace STF.NEAT.Benchmarks.XOR
     {
         static void Main(string[] args)
         {
-            Random random = new Random();
             var inputs = new List<List<float>> {
-                new List<float> { 0, 0 },
-                new List<float> { 1, 0 },
-                new List<float> { 0, 1 },
-                new List<float> { 1, 1 }
+                new() { 0, 0 },
+                new() { 1, 0 },
+                new() { 0, 1 },
+                new() { 1, 1 }
             };
             var expectedOutput = new List<float> {
                 0,
@@ -98,16 +97,3 @@ namespace STF.NEAT.Benchmarks.XOR
         }
     }
 }
-
-
-// 1. DESTROYEDTOOSOON
-// 2. AMBUSHNOW
-// 3. 2019GAMESCOM
-// 4. FEELMYGUN
-// 5. HIDDENBUTFOUND
-// 6. RICOCHETOHNO
-// 7. LIVINGONTHEEDGE
-// 8. DESTROYTHEMALL
-// 9. CANTBELIEVEISURVIVED
-// 10. TOTALCONTROL
-// 11. CAMPINGTIME

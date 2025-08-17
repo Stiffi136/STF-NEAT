@@ -6,21 +6,20 @@ namespace STF.NEAT
 {
     public class Species
     {
-        public Genome Champion;
-        public Genome Representative;
-        public List<Genome> Genomes;
-        public float AdjustedFitness;
-        public float SharedFitness;
-        public int ID;
-        public int StagnationCounter;
-        public float MaxFitness;
-        public bool Extinct;
+        public Genome Champion { get; set; }
+        public Genome Representative { get; set; }
+        public List<Genome> Genomes { get; set; }
+        public float AdjustedFitness { get; set; }
+        public float SharedFitness { get; set; }
+        public int ID { get; set; }
+        public int StagnationCounter { get; set; }
+        public float MaxFitness { get; set; }
+        public bool Extinct { get; set; }
 
         public Species(Genome representative, int id, float maxFitness, int stagnationCounter)
         {
             Representative = representative;
-            Genomes = new List<Genome>();
-            Genomes.Add(representative);
+            Genomes = [representative];
             ID = id;
             MaxFitness = maxFitness;
             StagnationCounter = stagnationCounter;
